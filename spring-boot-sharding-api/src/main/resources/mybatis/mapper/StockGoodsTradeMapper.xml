@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gold.wang.sharding.jdbc.mapper.StockGoodsTradeMapper">
+    <resultMap id="BaseResultMap" type="com.gold.wang.sharding.jdbc.entity.StockGoodsTrade">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="order_id" jdbcType="BIGINT" property="orderId"/>
+        <result column="business_id" jdbcType="BIGINT" property="businessId"/>
+        <result column="store_id" jdbcType="BIGINT" property="storeId"/>
+        <result column="sku_merchant_code" jdbcType="VARCHAR" property="skuMerchantCode"/>
+        <result column="batch_no" jdbcType="VARCHAR" property="batchNo"/>
+        <result column="batch_code" jdbcType="VARCHAR" property="batchCode"/>
+        <result column="charge_back_id" jdbcType="VARCHAR" property="chargeBackId"/>
+        <result column="quantity" jdbcType="DECIMAL" property="quantity"/>
+        <result column="piece_quantity" jdbcType="DECIMAL" property="pieceQuantity"/>
+        <result column="type" jdbcType="TINYINT" property="type"/>
+        <result column="status" jdbcType="TINYINT" property="status"/>
+        <result column="created_by" jdbcType="VARCHAR" property="createdBy"/>
+        <result column="gmt_create" jdbcType="TIMESTAMP" property="gmtCreate"/>
+        <result column="last_modified_by" jdbcType="VARCHAR" property="lastModifiedBy"/>
+        <result column="gmt_update" jdbcType="TIMESTAMP" property="gmtUpdate"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, order_id, business_id, store_id, sku_merchant_code, batch_no,batch_code, charge_back_id,
+        quantity, piece_quantity, version, extend, type, status, created_by, gmt_create, last_modified_by,
+        gmt_update
+    </sql>
+
+    <insert id="insert" parameterType="com.gold.wang.sharding.jdbc.entity.StockGoodsTrade">
+        insert into stock_goods_trade (id,store_id,
+        business_id,order_id, sku_merchant_code, batch_no,batch_code,
+        charge_back_id, quantity, piece_quantity, type, status,
+        created_by, gmt_create, last_modified_by,gmt_update)
+        values (#{id,jdbcType=BIGINT},#{storeId,jdbcType=BIGINT},#{businessId,jdbcType=BIGINT},
+         #{orderId,jdbcType=BIGINT}, #{skuMerchantCode,jdbcType=VARCHAR}, #{batchNo,jdbcType=VARCHAR}, #{batchCode,jdbcType=VARCHAR},
+        #{chargeBackId,jdbcType=VARCHAR}, #{quantity,jdbcType=DECIMAL}, #{pieceQuantity,jdbcType=DECIMAL},
+         #{type,jdbcType=TINYINT}, #{status,jdbcType=TINYINT}, #{createdBy,jdbcType=VARCHAR}, SYSDATE(), #{lastModifiedBy,jdbcType=VARCHAR},
+        SYSDATE())
+    </insert>
+
+</mapper>

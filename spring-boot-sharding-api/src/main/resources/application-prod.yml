@@ -1,0 +1,95 @@
+server:
+    port: 9061
+
+spring:
+    application:
+                  name: sharding-jdbc-split
+    devtools:
+        restart:
+            enabled: true
+        livereload:
+            enabled: false # we use gulp + BrowserSync for livereload
+    jackson:
+        serialization.indent_output: true
+    ds0:
+            type: com.zaxxer.hikari.HikariDataSource
+            driver-class-name: com.mysql.jdbc.Driver
+            jdbc-url: jdbc:mysql://10.179.88.182:3306/cloud0?useUnicode=true&characterEncoding=utf8&useSSL=false&autoReconnect=true
+            username: root
+            password: root
+            hikari:
+                   # 空闲连接的最小数量
+                    minimum-idle: 5
+                    # 连接池最大连接数
+                    maximum-pool-size: 15
+                    # 自动提交
+                    auto-commit: true
+                    # 连接idle状态的最大时长（毫秒）
+                    idle-timeout: 30000
+                    # 连接池名称（可改）
+                    pool-name: springHikariCP
+                    # 连接的生命时长（毫秒）
+                    max-lifetime: 1800000
+                    # 等待连接池分配连接的最大时长（毫秒）
+                    connection-timeout: 30000
+                    # 用来检测连接是否有效
+                    connection-test-query: SELECT 1
+                    # 是否是只读数据源, 做读写分离时有用, 保证slave数据源的安全
+                    read-only: false
+
+    ds1:
+            type: com.alibaba.druid.pool.DruidDataSource
+            driver-class-name: com.mysql.jdbc.Driver
+            jdbc-url: jdbc:mysql://10.179.58.220:3306/cloud1?useUnicode=true&characterEncoding=utf8&useSSL=false&autoReconnect=true
+            username: root
+            password: root
+            hikari:
+                   # 空闲连接的最小数量
+                    minimum-idle: 5
+                    # 连接池最大连接数
+                    maximum-pool-size: 15
+                    # 自动提交
+                    auto-commit: true
+                    # 连接idle状态的最大时长（毫秒）
+                    idle-timeout: 30000
+                    # 连接池名称（可改）
+                    pool-name: springHikariCP
+                    # 连接的生命时长（毫秒）
+                    max-lifetime: 1800000
+                    # 等待连接池分配连接的最大时长（毫秒）
+                    connection-timeout: 30000
+                    # 用来检测连接是否有效
+                    connection-test-query: SELECT 1
+                    # 是否是只读数据源, 做读写分离时有用, 保证slave数据源的安全
+                    read-only: false
+
+    ds2:
+            type: com.zaxxer.hikari.HikariDataSource
+            driver-class-name: com.mysql.jdbc.Driver
+            jdbc-url: jdbc:mysql://10.96.87.248:3306/elastic0?useUnicode=true&characterEncoding=utf8&useSSL=false&autoReconnect=true
+            username: root
+            password: root
+            hikari:
+                   # 空闲连接的最小数量
+                    minimum-idle: 5
+                    # 连接池最大连接数
+                    maximum-pool-size: 15
+                    # 自动提交
+                    auto-commit: true
+                    # 连接idle状态的最大时长（毫秒）
+                    idle-timeout: 30000
+                    # 连接池名称（可改）
+                    pool-name: springHikariCP
+                    # 连接的生命时长（毫秒）
+                    max-lifetime: 1800000
+                    # 等待连接池分配连接的最大时长（毫秒）
+                    connection-timeout: 30000
+                    # 用来检测连接是否有效
+                    connection-test-query: SELECT 1
+                    # 是否是只读数据源, 做读写分离时有用, 保证slave数据源的安全
+                    read-only: false
+
+swagger:
+        show: true
+
+

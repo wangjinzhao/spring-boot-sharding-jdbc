@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gold.wang.sharding.jdbc.mapper.StockGoodsBatchCodeMapper">
+    <resultMap id="BaseResultMap" type="com.gold.wang.sharding.jdbc.entity.StockGoodsBatchCode">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="business_id" jdbcType="BIGINT" property="businessId"/>
+        <result column="store_id" jdbcType="BIGINT" property="storeId"/>
+        <result column="sku_merchant_code" jdbcType="VARCHAR" property="skuMerchantCode"/>
+        <result column="batch_code" jdbcType="VARCHAR" property="batchCode"/>
+        <result column="batch_no" jdbcType="VARCHAR" property="batchNo"/>
+        <result column="piece_unit" jdbcType="DECIMAL" property="pieceUnit"/>
+        <result column="stock" jdbcType="DECIMAL" property="stock"/>
+        <result column="buy_stock" jdbcType="DECIMAL" property="buyStock"/>
+        <result column="piece_buy_stock" jdbcType="DECIMAL" property="pieceBuyStock"/>
+        <result column="waitting_area_stock" jdbcType="DECIMAL" property="waittingAreaStock"/>
+        <result column="piece_waitting_area_stock" jdbcType="DECIMAL" property="pieceWaittingAreaStock"/>
+        <result column="unqualified_area_stock" jdbcType="DECIMAL" property="unqualifiedAreaStock"/>
+        <result column="piece_unqualified_area_stock" jdbcType="DECIMAL" property="pieceUnqualifiedAreaStock"/>
+        <result column="wait_stock" jdbcType="DECIMAL" property="waitStock"/>
+        <result column="transit_stock" jdbcType="DECIMAL" property="transitStock"/>
+        <result column="unit" jdbcType="VARCHAR" property="unit"/>
+        <result column="expire_date" jdbcType="TIMESTAMP" property="expireDate"/>
+        <result column="produce_date" jdbcType="TIMESTAMP" property="produceDate"/>
+        <result column="produce_company" jdbcType="VARCHAR" property="produceCompany"/>
+        <result column="supply" jdbcType="VARCHAR" property="supply"/>
+        <result column="locked" jdbcType="SMALLINT" property="locked"/>
+        <result column="sync_date" jdbcType="TIMESTAMP" property="syncDate"/>
+        <result column="apply_type" jdbcType="TINYINT" property="applyType"/>
+        <result column="version" jdbcType="INTEGER" property="version"/>
+        <result column="extend" jdbcType="VARCHAR" property="extend"/>
+        <result column="created_by" jdbcType="VARCHAR" property="createdBy"/>
+        <result column="gmt_create" jdbcType="TIMESTAMP" property="gmtCreate"/>
+        <result column="last_modified_by" jdbcType="VARCHAR" property="lastModifiedBy"/>
+        <result column="gmt_update" jdbcType="TIMESTAMP" property="gmtUpdate"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, business_id, store_id, sku_merchant_code, batch_code, batch_no, piece_unit, stock,
+        buy_stock, piece_buy_stock, waitting_area_stock, piece_waitting_area_stock, unqualified_area_stock,
+        piece_unqualified_area_stock, wait_stock, transit_stock, unit, expire_date, produce_date,
+        produce_company, supply, locked, sync_date, apply_type, version, extend, created_by,
+        gmt_create, last_modified_by, gmt_update
+    </sql>
+
+
+    <insert id="insert" parameterType="com.gold.wang.sharding.jdbc.entity.StockGoodsBatchCode">
+        insert into stock_goods_batch_code (id, business_id, store_id,
+        sku_merchant_code, batch_code, batch_no,
+        piece_unit, stock, buy_stock,
+        piece_buy_stock, waitting_area_stock, piece_waitting_area_stock,
+        unqualified_area_stock, piece_unqualified_area_stock,
+        wait_stock, transit_stock, unit,
+        expire_date, produce_date, produce_company,
+        supply, locked, sync_date,
+        apply_type, version, extend,
+        created_by, gmt_create, last_modified_by,
+        gmt_update)
+        values (#{id,jdbcType=BIGINT}, #{businessId,jdbcType=BIGINT}, #{storeId,jdbcType=BIGINT},
+        #{skuMerchantCode,jdbcType=VARCHAR}, #{batchCode,jdbcType=VARCHAR}, #{batchNo,jdbcType=VARCHAR},
+        #{pieceUnit,jdbcType=DECIMAL}, #{stock,jdbcType=DECIMAL}, #{buyStock,jdbcType=DECIMAL},
+        #{pieceBuyStock,jdbcType=DECIMAL}, #{waittingAreaStock,jdbcType=DECIMAL},
+        #{pieceWaittingAreaStock,jdbcType=DECIMAL},
+        #{unqualifiedAreaStock,jdbcType=DECIMAL}, #{pieceUnqualifiedAreaStock,jdbcType=DECIMAL},
+        #{waitStock,jdbcType=DECIMAL}, #{transitStock,jdbcType=DECIMAL}, #{unit,jdbcType=VARCHAR},
+        #{expireDate,jdbcType=TIMESTAMP}, #{produceDate,jdbcType=TIMESTAMP}, #{produceCompany,jdbcType=VARCHAR},
+        #{supply,jdbcType=VARCHAR}, #{locked,jdbcType=SMALLINT}, #{syncDate,jdbcType=TIMESTAMP},
+        #{applyType,jdbcType=TINYINT}, #{version,jdbcType=INTEGER}, #{extend,jdbcType=VARCHAR},
+        #{createdBy,jdbcType=VARCHAR}, #{gmtCreate,jdbcType=TIMESTAMP}, #{lastModifiedBy,jdbcType=VARCHAR},
+        #{gmtUpdate,jdbcType=TIMESTAMP})
+    </insert>
+
+    <update id="updateStockForOrder" parameterType="com.gold.wang.sharding.jdbc.entity.StockGoodsBatchCode">
+        update stock_goods_batch_code
+        <set>
+            <if test="stock != null">
+                stock =stock- #{stock,jdbcType=DECIMAL},
+            </if>
+            <if test="buyStock != null">
+                buy_stock =buy_stock- #{buyStock,jdbcType=DECIMAL},
+            </if>
+            <if test="pieceBuyStock != null">
+                piece_buy_stock =piece_buy_stock- #{pieceBuyStock,jdbcType=DECIMAL},
+            </if>
+            <if test="pieceUnit != null">
+                piece_unit = #{pieceUnit,jdbcType=DECIMAL},
+            </if>
+            <if test="lastModifiedBy != null">
+                last_modified_by = #{lastModifiedBy,jdbcType=VARCHAR},
+            </if>
+            version = version + 1,
+            gmt_update = SYSDATE()
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+        <if test="stock != null">
+            <![CDATA[  and stock- #{stock,jdbcType=DECIMAL}>=0 ]]>
+        </if>
+        <if test="buyStock != null">
+            <![CDATA[  and buy_stock- #{buyStock,jdbcType=DECIMAL}>=0 ]]>
+        </if>
+        <if test="pieceBuyStock != null">
+            <![CDATA[  and piece_buy_stock- #{pieceBuyStock,jdbcType=DECIMAL}>=0 ]]>
+        </if>
+    </update>
+
+</mapper>
