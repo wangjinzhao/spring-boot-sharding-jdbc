@@ -20,7 +20,7 @@ spring:
       # 空闲连接的最小数量
       minimum-idle: 5
       # 连接池最大连接数
-      maximum-pool-size: 15
+      maximum-pool-size: 200
       # 自动提交
       auto-commit: true
       # 连接idle状态的最大时长（毫秒）
@@ -45,7 +45,7 @@ spring:
       # 空闲连接的最小数量
       minimum-idle: 5
       # 连接池最大连接数
-      maximum-pool-size: 15
+      maximum-pool-size: 200
       # 自动提交
       auto-commit: true
       # 连接idle状态的最大时长（毫秒）

@@ -106,6 +106,7 @@ public class StockGoodsTradeServiceImplTest {
      * demo2  死锁常见的产生的原因以及开发中如何规避。
      * 1.多数据操作的时候注意对数据进行排序,规避并发情况下产生死锁
      * mysql -h127.0.0.1 -uesuser -pususer
+     * 相关链接:https://www.cnblogs.com/janehoo/p/5603983.html
      */
     @Test
     public void testDoPlaceStockOrder() {
@@ -123,6 +124,9 @@ public class StockGoodsTradeServiceImplTest {
         iStockGoodsBatchCodeService.doPlaceStockOrder(one);
     }
 
+    /**
+     * demo2
+     */
     @Test
     public void testDoPlaceStockOrder1() {
         List<StockGoodsBatchCode> one = new ArrayList<>();
@@ -148,4 +152,6 @@ public class StockGoodsTradeServiceImplTest {
         int resut = iStockGoodsBatchCodeService.reduceGoodsBatchCodeStock(oneGood);
         Assert.assertTrue(resut > 0);
     }
+
+
 }
