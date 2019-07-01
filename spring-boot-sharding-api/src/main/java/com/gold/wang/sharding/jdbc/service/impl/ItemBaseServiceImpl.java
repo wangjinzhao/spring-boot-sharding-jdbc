@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+
 @Slf4j
 @Service
 public class ItemBaseServiceImpl implements IItemBaseService {
@@ -25,7 +26,7 @@ public class ItemBaseServiceImpl implements IItemBaseService {
     @Transactional(rollbackFor = Exception.class)
     public int updateSoldAndStockByGoodsNo(ItemBase param) {
         log.info("start update by uniqK itemBase={}", param);
-        int result=itemBaseMapper.update(param);
+        int result = itemBaseMapper.update(param);
         log.info("start update by uniqK result={}", result);
         return result;
     }
@@ -34,10 +35,8 @@ public class ItemBaseServiceImpl implements IItemBaseService {
     @Transactional(rollbackFor = Exception.class)
     public int updateSoldoutByPK(ItemBase itemBase) {
         log.info("start update by PK itemBase={}", itemBase);
-        int result=itemBaseMapper.update(itemBase);
+        int result = itemBaseMapper.update(itemBase);
         log.info("start update by PK result={}", result);
         return result;
     }
-
-
 }

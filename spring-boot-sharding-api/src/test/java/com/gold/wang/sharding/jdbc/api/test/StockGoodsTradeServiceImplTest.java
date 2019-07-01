@@ -5,6 +5,7 @@ import com.gold.wang.sharding.jdbc.entity.StockGoodsBatchCode;
 import com.gold.wang.sharding.jdbc.entity.StockGoodsTrade;
 import com.gold.wang.sharding.jdbc.service.IStockGoodsBatchCodeService;
 import com.gold.wang.sharding.jdbc.service.IStockGoodsTradeService;
+import com.gold.wang.sharding.jdbc.service.impl.StockGoodsBatchCodeBatchServiceImpl;
 import com.gold.wang.sharding.jdbc.util.IdGenerator;
 import org.junit.Assert;
 import org.junit.Test;
@@ -32,7 +33,8 @@ public class StockGoodsTradeServiceImplTest {
     @Autowired
     private IStockGoodsBatchCodeService iStockGoodsBatchCodeService;
 
-    ExecutorService executorService = Executors.newFixedThreadPool(5);
+    @Autowired
+    private StockGoodsBatchCodeBatchServiceImpl stockGoodsBatchCodeBatchService;
 
 
     /**
@@ -43,9 +45,10 @@ public class StockGoodsTradeServiceImplTest {
     @Test
     public void testSplitTableTransaction() {
         Long orderId = 123123123123L;
-        //Long storeId = 1211111111L;
-        Long storeId = 1111111111L;
-        Long storeId1 = 1111111111L;
+        Long storeId = 1211111111L;
+        Long storeId1 = 1211111111L;
+//        Long storeId = 1111111111L;
+//        Long storeId1 = 1111111111L;
         Long businessId = 131763L;
         //StockTrade
         StockGoodsTrade trade = new StockGoodsTrade();
@@ -143,10 +146,81 @@ public class StockGoodsTradeServiceImplTest {
         iStockGoodsBatchCodeService.doPlaceStockOrder(one);
     }
 
+
+    /**
+     * demo4  (错误用法示例)
+     * spring 事物底层原理是基于 AOP进行的代理增强实现的。
+     * 1.spring 配置的事物不起作用？什么情况下会导致spring事物不起作用？
+     * 2.很多时候我们要处理一个list集合，但是呢我们又不想 某条失败就回滚全部的
+     * 内容，只想回滚当前的某一条数据，其他的继续处理成功。
+     * what?怎么这么写我的事物没起作用？这是神马情况导致的？
+     */
+    @Test
+    public void testBatchHandle() {
+        List<StockGoodsBatchCode> list = new ArrayList();
+        StockGoodsBatchCode oneGood = new StockGoodsBatchCode();
+        oneGood.setId(88301211197275L);
+        oneGood.setStoreId(1211111111L);
+        oneGood.setBuyStock(new BigDecimal("1"));
+        oneGood.setStock(new BigDecimal("1"));
+        StockGoodsBatchCode twoGood = new StockGoodsBatchCode();
+        twoGood.setId(97021211186268L);
+        twoGood.setStoreId(1211111111L);
+        twoGood.setBuyStock(new BigDecimal("1"));
+        twoGood.setStock(new BigDecimal("1"));
+        list.add(oneGood);
+        list.add(twoGood);
+        iStockGoodsBatchCodeService.batchHandle(list);
+    }
+
+    /**
+     * demo4  (错误示例)
+     */
+    @Test
+    public void testBatchHandle1() {
+        List<StockGoodsBatchCode> list = new ArrayList();
+        StockGoodsBatchCode oneGood = new StockGoodsBatchCode();
+        oneGood.setId(88301211197275L);
+        oneGood.setStoreId(1211111111L);
+        oneGood.setBuyStock(new BigDecimal("1"));
+        oneGood.setStock(new BigDecimal("1"));
+        StockGoodsBatchCode twoGood = new StockGoodsBatchCode();
+        twoGood.setId(97021211186268L);
+        twoGood.setStoreId(1211111111L);
+        twoGood.setBuyStock(new BigDecimal("1"));
+        twoGood.setStock(new BigDecimal("1"));
+        list.add(oneGood);
+        list.add(twoGood);
+        iStockGoodsBatchCodeService.batchHandle(list);
+    }
+
+    /**
+     * demo4  (正确示例1)
+     */
+    @Test
+    public void testBatchHandle12() {
+        List<StockGoodsBatchCode> list = new ArrayList();
+        StockGoodsBatchCode oneGood = new StockGoodsBatchCode();
+        oneGood.setId(88301211197275L);
+        oneGood.setStoreId(1211111111L);
+        oneGood.setBuyStock(new BigDecimal("1"));
+        oneGood.setStock(new BigDecimal("1"));
+        StockGoodsBatchCode twoGood = new StockGoodsBatchCode();
+        twoGood.setId(97021211186268L);
+        twoGood.setStoreId(1211111111L);
+        twoGood.setBuyStock(new BigDecimal("1"));
+        twoGood.setStock(new BigDecimal("1"));
+        list.add(oneGood);
+        list.add(twoGood);
+        stockGoodsBatchCodeBatchService.batchHandle(list);
+    }
+
+
     @Test
     public void reduceGoodsBatchCodeStock() {
         StockGoodsBatchCode oneGood = new StockGoodsBatchCode();
         oneGood.setId(811111198972L);
+        oneGood.setStoreId(1211111111L);
         oneGood.setBuyStock(new BigDecimal("1"));
         oneGood.setStock(new BigDecimal("1"));
         int resut = iStockGoodsBatchCodeService.reduceGoodsBatchCodeStock(oneGood);

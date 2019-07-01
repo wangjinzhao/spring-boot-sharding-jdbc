@@ -16,5 +16,9 @@ public interface IStockGoodsBatchCodeService {
 
     void doPlaceStockOrder(List<StockGoodsBatchCode> list);
 
+    int batchHandle(List<StockGoodsBatchCode> list);
+
+    int handleOne(StockGoodsBatchCode param, int i);
+
 
 }

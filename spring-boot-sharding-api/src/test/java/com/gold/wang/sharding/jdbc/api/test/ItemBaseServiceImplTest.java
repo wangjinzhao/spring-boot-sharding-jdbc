@@ -67,6 +67,13 @@ public class ItemBaseServiceImplTest {
     }
 
 
+
+    /**
+     * demo4 1.spring 事物不起作用,你真的理解spring事物传播特性以及spring事物的实现原理吗？
+     */
+
+
+
     @Test
     public void testInsert() {
         int result = 0;

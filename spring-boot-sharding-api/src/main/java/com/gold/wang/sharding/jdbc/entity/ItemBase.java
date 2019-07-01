@@ -1,8 +1,10 @@
 package com.gold.wang.sharding.jdbc.entity;
 
 import lombok.Data;
+import lombok.ToString;
 
 @Data
+@ToString
 public class ItemBase {
     private Long itemId;
     private Long businessId;
