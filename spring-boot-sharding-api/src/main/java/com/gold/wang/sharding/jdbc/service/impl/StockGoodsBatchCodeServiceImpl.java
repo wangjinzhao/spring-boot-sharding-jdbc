@@ -39,6 +39,8 @@ public class StockGoodsBatchCodeServiceImpl implements IStockGoodsBatchCodeServi
      * 1.完全支持非跨库事物
      * 2.完成支持因逻辑异常导致的跨库事物,例如：同一事务中，跨两个库更新。更新完毕后，抛出空指针，则两个库的内容都能回滚。
      * 3.不支持因网络、硬件异常导致的跨库事务。例如：同一事务中，跨两个库更新，更新完毕后、未提交之前，第一个库宕机，则只有第二个库数据提交。
+     * 4.支持分布式事物 不做介绍,感兴趣自行查看官网
+     * https://shardingsphere.apache.org/document/current/cn/manual/sharding-jdbc/usage/transaction/
      * sharding-jdbc 支持两阶段事物-XA,两阶段提交保证操作原子性和事物一致性(宕机重启后提交/回滚后的时候可自动恢复,需要使用单独的XA事物管理器),性能太差不推荐
      * sharding-jdbc  也支持柔性事物,需要特殊的事物管理器以及外部相关的依赖，也暂不推荐
      */
@@ -106,7 +108,8 @@ public class StockGoodsBatchCodeServiceImpl implements IStockGoodsBatchCodeServi
      * 只要避开Spring目前的AOP实现上的限制即可.
      * 1.要么都声明要事务.(推荐,当然可能这种场景下不适用,但是我们写代码很多时候会有该问题)
      * 2.要么分开成两个类.(推荐)
-     * 3要么直接在方法里使用编程式事务 (不推荐编程式事物烦琐,且跟现在springboot的发展理念不合)
+     * 3要么直接在方法里使用编程式事务 (不推荐编程式事物)
+     * 4.再就是重新自行从spring容器中获取一下bean(不推荐)
      */
     @Override
     public int batchHandle(List<StockGoodsBatchCode> list) {

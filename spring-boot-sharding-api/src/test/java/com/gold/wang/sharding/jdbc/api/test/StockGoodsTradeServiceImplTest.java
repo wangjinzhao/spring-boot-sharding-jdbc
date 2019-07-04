@@ -7,6 +7,7 @@ import com.gold.wang.sharding.jdbc.service.IStockGoodsBatchCodeService;
 import com.gold.wang.sharding.jdbc.service.IStockGoodsTradeService;
 import com.gold.wang.sharding.jdbc.service.impl.StockGoodsBatchCodeBatchServiceImpl;
 import com.gold.wang.sharding.jdbc.util.IdGenerator;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,14 +16,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Random;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.*;
 
-
+@Slf4j
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = ShardingJdbcApplication.class)
 public class StockGoodsTradeServiceImplTest {
@@ -41,6 +37,15 @@ public class StockGoodsTradeServiceImplTest {
      * demo1   分库分表遵循的规则
      * 1.需要散列足够均匀,具体实时要结合具体业务场景
      * 2.有业务关联性的分库分表,需要事物保障一致性的,尽量分库分表的规则一致
+     * <p>
+     * sharding-jdbc 本地事物(我们日常开发用的都是本地事物,因此有业务相关性的分库分表的数据,路由规则要保持一致,避免第3种情况导致的不一致性)
+     * * 1.完全支持非跨库事物
+     * * 2.完成支持因逻辑异常导致的跨库事物,例如：同一事务中，跨两个库更新。更新完毕后，抛出空指针，则两个库的内容都能回滚。
+     * * 3.不支持因网络、硬件异常导致的跨库事务。例如：同一事务中，跨两个库更新，更新完毕后、未提交之前，第一个库宕机，则只有第二个库数据提交。
+     * * 4.支持分布式事物 不做介绍,感兴趣自行查看官网
+     * * https://shardingsphere.apache.org/document/current/cn/manual/sharding-jdbc/usage/transaction/
+     * * sharding-jdbc 支持两阶段事物-XA,两阶段提交保证操作原子性和事物一致性(宕机重启后提交/回滚后的时候可自动恢复,需要使用单独的XA事物管理器),性能太差不推荐
+     * * sharding-jdbc  也支持柔性事物,需要特殊的事物管理器以及外部相关的依赖，也暂不推荐
      */
     @Test
     public void testSplitTableTransaction() {
@@ -108,7 +113,9 @@ public class StockGoodsTradeServiceImplTest {
     /**
      * demo2  死锁常见的产生的原因以及开发中如何规避。
      * 1.多数据操作的时候注意对数据进行排序,规避并发情况下产生死锁
-     * mysql -h127.0.0.1 -uesuser -pususer
+     * mysql -h127.0.0.1 -uroot -proot
+     * SHOW ENGINE INNODB STATUS\G
+     * <p>
      * 相关链接:https://www.cnblogs.com/janehoo/p/5603983.html
      */
     @Test
@@ -214,6 +221,84 @@ public class StockGoodsTradeServiceImplTest {
         list.add(twoGood);
         stockGoodsBatchCodeBatchService.batchHandle(list);
     }
+
+
+    /**
+     * demo5
+     * 对于数据库操作能批量的一定批量操作,很多时候我们业务操作都已经带了分库分表的字段,并且可能需要处理的list分库分表字段值都是一样
+     * 千万不要一上来就for循环里面操作数据库了
+     * sharding-jdbc 3.0支持批量 insert/update/select
+     * 举例
+     * 1.多品下单扣减库存,对于POS单来说同一个单肯定同一个门店,库存表也是按照storeId分库分表的,批处理肯定可以一次数据库io操作
+     * 2.insert/update 对于一个list操作里面加入分库分表的字段值不一样,那么先按照分库分表字段分组,然后分组批处理,可能要保证事物之类的for循环分组即可
+     * 3.对于select 如果一组待处理的数据分库分表的字段值不一致分组处理,然后多线程异步处理分组批量查询
+     */
+    @Test
+    public void testBatchInsertStockGoodTrade() {
+        //为了刨除初始化时候数据库建立连接的时间先查询一次,下面比对相对准确
+        ArrayList<Long> ids = new ArrayList(Arrays.asList(1011211170445L, 1371211182272L, 3521211130672L,
+                6521211118613L, 8121211145764L, 8211211141231L, 8531211114015L, 8561211145406L, 9271211192057L));
+        iStockGoodsTradeService.batchSelect(ids);
+
+        //BadCase
+        List<StockGoodsTrade> list1 = new ArrayList<>();
+        for (int i = 0; i < 30; i++) {
+            StockGoodsTrade trade = new StockGoodsTrade();
+            trade.setId(IdGenerator.generate(1211111111L));
+            trade.setOrderId(new Random().nextLong());
+            trade.setBusinessId(131763L);
+            trade.setStoreId(1211111111L);
+            trade.setSkuMerchantCode(new Random().nextInt(100000) + "");
+            trade.setBatchCode(new Random().nextInt(100000) + "");
+            trade.setBatchNo(new Random().nextInt(100000) + "");
+            trade.setChargeBackId("-1");
+            trade.setQuantity(new BigDecimal("0"));
+            trade.setPieceQuantity(new BigDecimal("0"));
+            trade.setType((byte) 0);
+            trade.setStatus((byte) 0);
+            trade.setCreatedBy("");
+            trade.setGmtCreate(new Date());
+            trade.setLastModifiedBy("");
+            trade.setGmtUpdate(new Date());
+            list1.add(trade);
+        }
+        long start1 = System.currentTimeMillis();
+        iStockGoodsTradeService.insertBatchBadCase(list1);
+        log.info("=========================for循环插入耗时time={}", System.currentTimeMillis() - start1);
+
+
+        List<StockGoodsTrade> list = new ArrayList<>();
+        for (int i = 0; i < 30; i++) {
+            StockGoodsTrade trade = new StockGoodsTrade();
+            trade.setId(IdGenerator.generate(1211111111L));
+            trade.setOrderId(new Random().nextLong());
+            trade.setBusinessId(131763L);
+            trade.setStoreId(1211111111L);
+            trade.setSkuMerchantCode(new Random().nextInt(100000) + "");
+            trade.setBatchCode(new Random().nextInt(100000) + "");
+            trade.setBatchNo(new Random().nextInt(100000) + "");
+            trade.setChargeBackId("-1");
+            trade.setQuantity(new BigDecimal("0"));
+            trade.setPieceQuantity(new BigDecimal("0"));
+            trade.setType((byte) 0);
+            trade.setStatus((byte) 0);
+            trade.setCreatedBy("");
+            trade.setGmtCreate(new Date());
+            trade.setLastModifiedBy("");
+            trade.setGmtUpdate(new Date());
+            list.add(trade);
+        }
+        long start = System.currentTimeMillis();
+        int result = iStockGoodsTradeService.insertBatch(list);
+        log.info("==============================批量插入耗时time={}", System.currentTimeMillis() - start);
+        Assert.assertTrue(result == list.size());
+    }
+
+
+
+    /**
+     *
+     */
 
 
     @Test

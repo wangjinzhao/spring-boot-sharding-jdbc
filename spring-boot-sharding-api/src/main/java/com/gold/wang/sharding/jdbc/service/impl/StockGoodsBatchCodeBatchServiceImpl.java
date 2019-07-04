@@ -2,7 +2,6 @@ package com.gold.wang.sharding.jdbc.service.impl;
 
 import com.gold.wang.sharding.jdbc.entity.StockGoodsBatchCode;
 import lombok.extern.slf4j.Slf4j;
-import net.bytebuddy.asm.Advice;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

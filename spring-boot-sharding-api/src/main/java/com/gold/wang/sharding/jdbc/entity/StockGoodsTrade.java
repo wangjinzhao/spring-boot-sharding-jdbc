@@ -11,6 +11,7 @@ import java.util.Date;
 @Data
 @ToString
 public class StockGoodsTrade implements Serializable {
+
     private Long id;
 
     private Long orderId;

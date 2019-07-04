@@ -37,4 +37,48 @@
         SYSDATE())
     </insert>
 
+    <insert id="insertBatch" parameterType="java.util.List">
+        insert into stock_goods_trade (id,store_id,
+        business_id,order_id, sku_merchant_code, batch_no,batch_code,
+        charge_back_id, quantity, piece_quantity, type, status,
+        created_by, gmt_create, last_modified_by,gmt_update)
+        values
+        <foreach collection="list" item="info" index="index" separator=",">
+            (#{info.id,jdbcType=BIGINT},#{info.storeId,jdbcType=BIGINT},#{info.businessId,jdbcType=BIGINT},
+            #{info.orderId,jdbcType=BIGINT}, #{info.skuMerchantCode,jdbcType=VARCHAR}, #{info.batchNo,jdbcType=VARCHAR},
+            #{info.batchCode,jdbcType=VARCHAR},
+            #{info.chargeBackId,jdbcType=VARCHAR}, #{info.quantity,jdbcType=DECIMAL},
+            #{info.pieceQuantity,jdbcType=DECIMAL},#{info.type,jdbcType=TINYINT}, #{info.status,jdbcType=TINYINT},
+            #{info.createdBy,jdbcType=VARCHAR}, SYSDATE(), #{info.lastModifiedBy,jdbcType=VARCHAR},
+            SYSDATE())
+        </foreach>
+    </insert>
+
+
+    <select id="batchSelect" resultMap="BaseResultMap" parameterType="java.util.List">
+        select
+        <include refid="Base_Column_List"></include>
+        from stock_goods_trade
+        where id in
+        <foreach item="id" index="index" collection="list"
+                 open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+
+    <!-- 如果是多条件的也可以 通过or 转化为批量查询 -->
+    <!--    <select id="getStoreStockGoodsBatchCodeBatch" resultMap="BaseResultMap">-->
+    <!--        select-->
+    <!--        <include refid="Base_Column_List"></include>-->
+    <!--        from stock_goods_batch_code-->
+    <!--        where store_id = #{storeId}-->
+    <!--        and-->
+    <!--        <foreach close=")" collection="goodsInfos" item="p" open="("-->
+    <!--                 separator="or">-->
+    <!--            (sku_merchant_code = #{p.skuMerchantCode} and batch_no = #{p.batchNo} and batch_code = #{p.batchCode})-->
+    <!--        </foreach>-->
+    <!--    </select>-->
+
+
 </mapper>
