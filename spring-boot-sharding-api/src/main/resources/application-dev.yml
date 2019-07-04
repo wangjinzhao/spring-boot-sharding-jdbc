@@ -38,9 +38,15 @@ spring:
 
   ds1:
     type: com.zaxxer.hikari.HikariDataSource
-    jdbc-url: jdbc:mysql://127.0.0.1:3306/cowell_stockcenter_1?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=UTC
-    username: root
-    password: root
+
+    url: jdbc:mysql://10.8.131.12:3306/cowell_stockcenter_1?useUnicode=true&characterEncoding=utf8&useSSL=false
+    username: stockcenter
+    password: Gaoji_001#
+
+#    jdbc-url: jdbc:mysql://127.0.0.1:3306/cowell_stockcenter_1?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=UTC
+#    username: root
+#    password: root
+
     hikari:
       # 空闲连接的最小数量
       minimum-idle: 30

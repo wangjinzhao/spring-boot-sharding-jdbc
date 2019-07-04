@@ -36,13 +36,14 @@ public class StockGoodsTradeServiceImplTest {
     /**
      * demo1   分库分表遵循的规则
      * 1.需要散列足够均匀,具体实时要结合具体业务场景
-     * 2.有业务关联性的分库分表,需要事物保障一致性的,尽量分库分表的规则一致
+     * 2.有业务关联性的分库分表,需要本地事物保障一致性的,尽量分库分表的规则一致
+     * 3.业务开发中尽可能的规避分布式事物
      * <p>
      * sharding-jdbc 本地事物(我们日常开发用的都是本地事物,因此有业务相关性的分库分表的数据,路由规则要保持一致,避免第3种情况导致的不一致性)
      * * 1.完全支持非跨库事物
      * * 2.完成支持因逻辑异常导致的跨库事物,例如：同一事务中，跨两个库更新。更新完毕后，抛出空指针，则两个库的内容都能回滚。
      * * 3.不支持因网络、硬件异常导致的跨库事务。例如：同一事务中，跨两个库更新，更新完毕后、未提交之前，第一个库宕机，则只有第二个库数据提交。
-     * * 4.支持分布式事物 不做介绍,感兴趣自行查看官网
+     * * 4.支持分布式事物 不做介绍,感兴趣自行查看官网   PS:实际上我也没看
      * * https://shardingsphere.apache.org/document/current/cn/manual/sharding-jdbc/usage/transaction/
      * * sharding-jdbc 支持两阶段事物-XA,两阶段提交保证操作原子性和事物一致性(宕机重启后提交/回滚后的时候可自动恢复,需要使用单独的XA事物管理器),性能太差不推荐
      * * sharding-jdbc  也支持柔性事物,需要特殊的事物管理器以及外部相关的依赖，也暂不推荐
@@ -297,7 +298,22 @@ public class StockGoodsTradeServiceImplTest {
 
 
     /**
+     * demo6
+     * 1.应用取不到数据连接连接的情况基本上可以分为2种
+     * 1)数据库连接池满了,从数据库连接池获取连接失败,基本市面上常见的数据库连接池底层实现基本上都是基于Apache Commons Pool,里面的相关参数大家可以自行去看下代码
+     *    看到这种情况可以看业务情况,如果是业务上量了,可以适当调整数据库连接池的大小
+     * 2) 另外一种情况就是,应用建立的链接已经超过了数据库设置的连接数上限。会报异常
+     *    Connections could not be acquired from the underlying database! Cannot obtain a new connection
+     *   这种情况是要先看下数据库的最大链接的配置，
      *
+     *   查看当前链接使用情况
+     *   show status where Variable_name = 'Connections'
+     *   查看最大的链接设置
+     *   show variables like '%max_connections%';
+     *   设置最大链接
+     *   set GLOBAL max_connections = 200
+     *   当然实际上如果你的链接已经配置够大了,你的应用程序也没有太高的tps,此时要用
+     *   SHOW FULL PROCESSLIST  看看info字段 ，看看当前占用的链接都是在执行什么数据库操作,如果大量的都是执行类似的sql,那么需要考虑你的sql 是否有问题
      */
 
 
